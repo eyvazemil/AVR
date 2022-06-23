@@ -26,7 +26,11 @@ void USART_transmit(uint8_t data) {
     UDR0 = data;
 }
 
-uint8_t USART_receive(void) {
+uint8_t USART_receive_nonblocking(void) {
+    return UDR0;
+}
+
+uint8_t USART_receive_blocking(void) {
     // busy wait until receive buffer is empty(until all the data is copied into UDR0 register)
     while(!(UCSR0A & (1 << RXC0)));
 

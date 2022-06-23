@@ -5,7 +5,7 @@ PORT = /dev/ttyUSB0
 BAUD = 9600UL
 F_CPU = 16000000UL
 
-# avr-gcc
+# AVR-GCC
 CC = avr-gcc
 CC_OBJCOPY = avr-objcopy
 CFLAGS = -std=gnu99 -DF_CPU=$(F_CPU) -DBAUD=$(BAUD) -mmcu=$(MCU)
@@ -13,6 +13,11 @@ BUILD_DIR = Build
 PROGRAM = usart_led
 OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/USART.o
 
+# GIT
+GIT_BRANCH = master
+GIT_MESSAGE = "Added nonblocking USART receiver and cylon LED eyes while USART receiver module is in idle mode."
+
+# targets
 all: create_build_dir $(OBJECT_FILES)
 	$(CC) $(CFLAGS)  $(OBJECT_FILES) -o $(BUILD_DIR)/$(PROGRAM).elf
 	$(CC_OBJCOPY) -O ihex $(BUILD_DIR)/$(PROGRAM).elf $(BUILD_DIR)/$(PROGRAM).hex
@@ -31,6 +36,14 @@ flash_check:
 
 flash:
 	sudo avrdude -c $(ISP) -p $(MCU) -P $(PORT) -U flash:w:$(BUILD_DIR)/$(PROGRAM).hex
+
+usart_screen:
+	sudo screen /dev/ttyUSB0 $(BAUD)
+
+sync:
+	git add --all
+	git commit -m $(GIT_MESSAGE)
+	git push origin $(GIT_BRANCH)
 
 clean:
 	@if [ -e ${BUILD_DIR} ]; then rm -rf ${BUILD_DIR}; fi
