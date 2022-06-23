@@ -15,7 +15,7 @@ OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/USART.o
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Added nonblocking USART receiver and cylon LED eyes while USART receiver module is in idle mode."
+GIT_MESSAGE = "Added 7 segment display to display received numbers."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
