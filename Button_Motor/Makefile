@@ -11,11 +11,11 @@ CC_OBJCOPY = avr-objcopy
 CFLAGS = -std=gnu99 -DF_CPU=$(F_CPU) -DBAUD=$(BAUD) -mmcu=$(MCU)
 BUILD_DIR = Build
 PROGRAM = button_motor
-OBJECT_FILES = $(BUILD_DIR)/main.o
+OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "MCU correctly reads button being pressed with debouncing and lights up LED when pressed."
+GIT_MESSAGE = "Implemented buzzer on button push with debounce via pin interrupt."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
@@ -27,6 +27,9 @@ create_build_dir:
 
 $(BUILD_DIR)/main.o: main.c
 	$(CC) $(CFLAGS) -Os -c main.c -o $@
+
+$(BUILD_DIR)/interrupts.o: interrupts.h interrupts.c
+	$(CC) $(CFLAGS) -Os -c interrupts.c -o $@
 
 flash_check:
 	sudo avrdude -c $(ISP) -p $(MCU) -P $(PORT)
