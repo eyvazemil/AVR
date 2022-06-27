@@ -1,9 +1,12 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
+#include "macros.h"
+
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 typedef enum interruptType {
     INT_INT0   = 0b00010000,

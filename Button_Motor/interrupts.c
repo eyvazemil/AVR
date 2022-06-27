@@ -1,5 +1,9 @@
 #include "interrupts.h"
 
+// should be volatile, so that compiler doesn't optimize it into a constant
+static volatile uint8_t flag_button_pressed = 0;
+static volatile uint8_t flag_LED_set = 0;
+
 void interrupts_init(InterruptType interrupt_type, uint8_t pin) {
     uint8_t flag_valid_interrupt = 0;
 
@@ -37,4 +41,46 @@ void interrupts_init(InterruptType interrupt_type, uint8_t pin) {
     // if interrupts passed were valid, set global interrupt enable
     if(flag_valid_interrupt)
         sei();
+}
+
+ISR(PCINT2_vect) {
+    if(!(PIND & (1 << BUTTON_PORT_ID))) { // button was pressed
+        _delay_us(DELAY_DEBOUNCE); // debounce
+
+        // button is still pressed and LED hasn't already been on
+        if(!(PIND & (1 << BUTTON_PORT_ID)) && !flag_button_pressed) {
+                BUZZER |= (1 << BUZZER_PORT_ID);
+                flag_button_pressed = 1;
+        } else if(flag_button_pressed) { // button simply bounced and wan't pressed
+            BUZZER &= ~(1 << BUZZER_PORT_ID); // turn the LED off
+            flag_button_pressed = 0;
+        }
+    } else if(flag_button_pressed) {
+        BUZZER &= ~(1 << BUZZER_PORT_ID);
+        flag_button_pressed = 0;
+    }
+}
+
+ISR(TIMER0_COMPA_vect) {
+    if(!flag_LED_set) {
+        LED_A_PORT |= (1 << LED_A);
+        LED_B_PORT &= ~(1 << LED_B);
+        flag_LED_set = 1;
+    } else if(flag_LED_set) {
+        LED_A_PORT &= ~(1 << LED_A);
+        LED_B_PORT |= (1 << LED_B);
+        flag_LED_set = 0;
+    }
+}
+
+ISR(TIMER1_COMPA_vect) {
+    if(!flag_LED_set) {
+        LED_A_PORT |= (1 << LED_A);
+        LED_B_PORT &= ~(1 << LED_B);
+        flag_LED_set = 1;
+    } else if(flag_LED_set) {
+        LED_A_PORT &= ~(1 << LED_A);
+        LED_B_PORT |= (1 << LED_B);
+        flag_LED_set = 0;
+    }
 }

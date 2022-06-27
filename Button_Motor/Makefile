@@ -11,11 +11,11 @@ CC_OBJCOPY = avr-objcopy
 CFLAGS = -std=gnu99 -DF_CPU=$(F_CPU) -DBAUD=$(BAUD) -mmcu=$(MCU)
 BUILD_DIR = Build
 PROGRAM = button_motor
-OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o
+OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers_counters.o $(BUILD_DIR)/USART.o
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Implemented buzzer on button push with debounce via pin interrupt."
+GIT_MESSAGE = "Implemented 8-bit and 16-bit counters in CTC mode. Tested on 2 LEDs."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
@@ -30,6 +30,12 @@ $(BUILD_DIR)/main.o: main.c
 
 $(BUILD_DIR)/interrupts.o: interrupts.h interrupts.c
 	$(CC) $(CFLAGS) -Os -c interrupts.c -o $@
+
+$(BUILD_DIR)/timers_counters.o: timers_counters.h timers_counters.c
+	$(CC) $(CFLAGS) -Os -c timers_counters.c -o $@
+
+$(BUILD_DIR)/USART.o: USART.h USART.c
+	$(CC) $(CFLAGS) -Os -c USART.c -o $@
 
 flash_check:
 	sudo avrdude -c $(ISP) -p $(MCU) -P $(PORT)
