@@ -1,7 +1,7 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#define DELAY 2000
+#define DELAY 50
 #define USART_RECEIVE_COMPLETE ((UCSR0A & (1 << RXC0)) != 0)
 #define DELAY_DEBOUNCE 1000
 #define BUTTON_PORT_ID PD3
