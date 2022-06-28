@@ -16,7 +16,7 @@ int main(void) {
     DDRD = (1 << BUZZER_PORT_ID) | (1 << LED_A);
 
     // set PB[0:1] to output modes
-    DDRB = (1 << LED_B);
+    DDRB = (1 << MOTOR_PORT_ID) | (1 << LED_B);
 
     // set pull up resistor on PORTD[7]
     PORTD = (1 << BUTTON_PORT_ID);
@@ -27,12 +27,20 @@ int main(void) {
     // explicitly set enable the interrupts(will be needed for timer/counter module)
     sei();
 
+    // initialize timer for PWM generation
+    timer1_PWM_init(MOTOR_PULSE_MAX);
+
     // initialize timers for LEDs
-    timer1_init(255, 255);
+    //timer1_LED_init(0xFF, 0xFF);
 
     // event loop
     while(1) {
-        
+        OCR1A = MOTOR_PULSE_MAX;
+        _delay_ms(DELAY);
+        OCR1A = MOTOR_PULSE_MID;
+        _delay_ms(DELAY);
+        OCR1A = MOTOR_PULSE_MIN;
+        _delay_ms(DELAY);
     }
 
     return 0;

@@ -3,7 +3,7 @@ MCU = atmega328p
 ISP = arduino
 PORT = /dev/ttyUSB0
 BAUD = 9600UL
-F_CPU = 16000000UL
+F_CPU = 8000000UL
 
 # AVR-GCC
 CC = avr-gcc
@@ -15,7 +15,7 @@ OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Implemented 8-bit and 16-bit counters in CTC mode. Tested on 2 LEDs."
+GIT_MESSAGE = "Implemented 16-bit PWM generation on PB1 port for SERVO motor."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
@@ -25,16 +25,16 @@ all: create_build_dir $(OBJECT_FILES)
 create_build_dir:
 	@if [ ! -e ${BUILD_DIR} ]; then mkdir ${BUILD_DIR}; fi
 
-$(BUILD_DIR)/main.o: main.c
+$(BUILD_DIR)/main.o: main.c macros.h
 	$(CC) $(CFLAGS) -Os -c main.c -o $@
 
-$(BUILD_DIR)/interrupts.o: interrupts.h interrupts.c
+$(BUILD_DIR)/interrupts.o: interrupts.h interrupts.c macros.h
 	$(CC) $(CFLAGS) -Os -c interrupts.c -o $@
 
-$(BUILD_DIR)/timers_counters.o: timers_counters.h timers_counters.c
+$(BUILD_DIR)/timers_counters.o: timers_counters.h timers_counters.c macros.h
 	$(CC) $(CFLAGS) -Os -c timers_counters.c -o $@
 
-$(BUILD_DIR)/USART.o: USART.h USART.c
+$(BUILD_DIR)/USART.o: USART.h USART.c macros.h
 	$(CC) $(CFLAGS) -Os -c USART.c -o $@
 
 flash_check:

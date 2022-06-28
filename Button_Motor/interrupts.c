@@ -3,6 +3,7 @@
 // should be volatile, so that compiler doesn't optimize it into a constant
 static volatile uint8_t flag_button_pressed = 0;
 static volatile uint8_t flag_LED_set = 0;
+static volatile uint8_t flag_motor_pulse_max = 1;
 
 void interrupts_init(InterruptType interrupt_type, uint8_t pin) {
     uint8_t flag_valid_interrupt = 0;
@@ -61,7 +62,7 @@ ISR(PCINT2_vect) {
     }
 }
 
-ISR(TIMER0_COMPA_vect) {
+ISR(TIMER1_COMPA_vect) {
     if(!flag_LED_set) {
         LED_A_PORT |= (1 << LED_A);
         LED_B_PORT &= ~(1 << LED_B);
@@ -73,14 +74,12 @@ ISR(TIMER0_COMPA_vect) {
     }
 }
 
-ISR(TIMER1_COMPA_vect) {
-    if(!flag_LED_set) {
-        LED_A_PORT |= (1 << LED_A);
-        LED_B_PORT &= ~(1 << LED_B);
-        flag_LED_set = 1;
-    } else if(flag_LED_set) {
-        LED_A_PORT &= ~(1 << LED_A);
-        LED_B_PORT |= (1 << LED_B);
-        flag_LED_set = 0;
-    }
+ISR(TIMER1_OVF_vect) {
+    /*if(flag_motor_pulse_max) {
+        OCR1A = MOTOR_PULSE_MIN;
+        flag_motor_pulse_max = 0;
+    } else {
+        OCR1A = MOTOR_PULSE_MAX;
+        flag_motor_pulse_max = 1;
+    }*/
 }
