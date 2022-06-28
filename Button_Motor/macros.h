@@ -1,7 +1,7 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#define DELAY 500
+#define DELAY 2000
 #define USART_RECEIVE_COMPLETE ((UCSR0A & (1 << RXC0)) != 0)
 #define DELAY_DEBOUNCE 1000
 #define BUTTON_PORT_ID PD3
@@ -15,8 +15,8 @@
 
 // SERVO motor
 #define MOTOR_PULSES 20000
-#define MOTOR_PULSE_MIN 1000 // 5% of 20000(16-bit timer)
-#define MOTOR_PULSE_MAX 4000 // 10% of 20000(16-bit timer)
-#define MOTOR_PULSE_MID ((MOTOR_PULSE_MAX - MOTOR_PULSE_MIN) / 2 + MOTOR_PULSE_MIN) // 7.5% of 20000(16-bit timer)
+#define MOTOR_PULSE_MIN 700 // maximum left position of 20000(16-bit timer)
+#define MOTOR_PULSE_MAX 5200 // maximum right position of 20000(16-bit timer)
+#define MOTOR_PULSE_MID ((MOTOR_PULSE_MAX - MOTOR_PULSE_MIN) / 2 + MOTOR_PULSE_MIN) // in the middle of max and min of 20000(16-bit timer)
 
 #endif // MACROS_H

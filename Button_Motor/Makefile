@@ -15,7 +15,7 @@ OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Implemented 16-bit PWM generation on PB1 port for SERVO motor."
+GIT_MESSAGE = "Max and min position of SERVO motor was found."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
