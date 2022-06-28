@@ -35,12 +35,7 @@ int main(void) {
 
     // event loop
     while(1) {
-        OCR1A = MOTOR_PULSE_MAX;
-        _delay_ms(DELAY);
-        OCR1A = MOTOR_PULSE_MID;
-        _delay_ms(DELAY);
-        OCR1A = MOTOR_PULSE_MIN;
-        _delay_ms(DELAY);
+        
     }
 
     return 0;

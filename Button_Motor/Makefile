@@ -15,7 +15,7 @@ OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Max and min position of SERVO motor was found."
+GIT_MESSAGE = "Implemented SERVO motor direction changing in a timer overflow interrupt."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)

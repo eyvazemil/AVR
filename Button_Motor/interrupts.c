@@ -3,7 +3,17 @@
 // should be volatile, so that compiler doesn't optimize it into a constant
 static volatile uint8_t flag_button_pressed = 0;
 static volatile uint8_t flag_LED_set = 0;
-static volatile uint8_t flag_motor_pulse_max = 1;
+
+// Variable to denote the trajectory of the motor:
+//      First bit denotes trajectory:
+//          * 0 -- from MAX to MIN.
+//          * 1 -- from MIN to MAX.
+//      Second bit denotes visited states:
+//          * 4 -- only MAX was visited.
+//          * 6 -- MAX and MIN were visited.
+//          * 7 -- all states were visited.
+static volatile uint8_t motor_pulse_trajectory = 0x04;
+static volatile uint8_t flag_motor_MAX_pulse = 1;
 
 void interrupts_init(InterruptType interrupt_type, uint8_t pin) {
     uint8_t flag_valid_interrupt = 0;
@@ -75,11 +85,19 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 ISR(TIMER1_OVF_vect) {
-    /*if(flag_motor_pulse_max) {
+    if(motor_pulse_trajectory == 0x04) { // was in MAX pulse state
+        OCR1A = MOTOR_PULSE_MID;
+        motor_pulse_trajectory = 0x06; // visited MAX and MID (goes from MAX to MIN)
+    } else if(motor_pulse_trajectory == 0x06) { // was in MID but started from MAX state
         OCR1A = MOTOR_PULSE_MIN;
-        flag_motor_pulse_max = 0;
-    } else {
+        motor_pulse_trajectory = 0x07; // visited MAX, MID, and MIN (goes from MAX to MIN)
+    } else if(motor_pulse_trajectory == 0x07) { // is in MIN pulse state
+        OCR1A = MOTOR_PULSE_MID;
+        motor_pulse_trajectory = 0x13; // visited MIN and MID (goes from MIN to MAX)
+    } else if(motor_pulse_trajectory == 0x13) { // is in MID pulse state
         OCR1A = MOTOR_PULSE_MAX;
-        flag_motor_pulse_max = 1;
-    }*/
+        motor_pulse_trajectory = 0x04; // resetting trajectory to start from MAX pulse state
+    }
+
+    _delay_ms(DELAY);
 }
