@@ -1,20 +1,11 @@
 #include "interrupts.h"
+#include "ADC.h"
+#include "macros.h"
 
 // should be volatile, so that compiler doesn't optimize it into a constant
 static volatile uint8_t flag_button_pressed = 0;
 static volatile uint8_t flag_LED_set = 0;
-
-// Variable to denote the trajectory of the motor:
-//      First bit denotes trajectory:
-//          * 0 -- from MAX to MIN.
-//          * 1 -- from MIN to MAX.
-//      Second bit denotes visited states:
-//          * 4 -- only MAX was visited.
-//          * 6 -- MAX and MIN were visited.
-//          * 7 -- all states were visited.
-static volatile uint8_t motor_pulse_trajectory = 0x04;
 static volatile uint8_t flag_motor_MAX_pulse = 1;
-static volatile int motor_position = MOTOR_PULSE_MAX;
 
 void interrupts_init(InterruptType interrupt_type, uint8_t pin) {
     uint8_t flag_valid_interrupt = 0;
@@ -86,23 +77,7 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 ISR(TIMER1_OVF_vect) {
-    /*if(motor_pulse_trajectory == 0x04) { // was in MAX pulse state
-        OCR1A = MOTOR_PULSE_MID;
-        motor_pulse_trajectory = 0x06; // visited MAX and MID (goes from MAX to MIN)
-    } else if(motor_pulse_trajectory == 0x06) { // was in MID but started from MAX state
-        OCR1A = MOTOR_PULSE_MIN;
-        motor_pulse_trajectory = 0x07; // visited MAX, MID, and MIN (goes from MAX to MIN)
-    } else if(motor_pulse_trajectory == 0x07) { // is in MIN pulse state
-        OCR1A = MOTOR_PULSE_MID;
-        motor_pulse_trajectory = 0x13; // visited MIN and MID (goes from MIN to MAX)
-    } else if(motor_pulse_trajectory == 0x13) { // is in MID pulse state
-        OCR1A = MOTOR_PULSE_MAX;
-        motor_pulse_trajectory = 0x04; // resetting trajectory to start from MAX pulse state
-    }
-
-    _delay_ms(DELAY);*/
-
-    if(motor_position >= MOTOR_PULSE_MAX)
+    /*if(motor_position >= MOTOR_PULSE_MAX)
         flag_motor_MAX_pulse = 1;
     else if(motor_position <= MOTOR_PULSE_MIN)
         flag_motor_MAX_pulse = 0;
@@ -112,7 +87,19 @@ ISR(TIMER1_OVF_vect) {
     else
         motor_position += 100;
 
-    OCR1A = motor_position;
+    OCR1A = motor_position;*/
+}
 
-    //_delay_ms(DELAY);
+ISR(ADC_vect) { // ADC conversion done
+    uint8_t ADC_lower = ADCL; // lower bits of ADC conversion result
+    uint8_t ADC_higher = ADCH; // higher bits of ADC conversion result
+
+    // calculate the scaler between SERVO motor rotations and joystick values
+    uint8_t scaler = (MOTOR_PULSE_MAX - MOTOR_PULSE_MIN) / (JOYSTICK_MAX - JOYSTICK_MIN) + 1;
+
+    // set the rotation value of SERVO motor
+    OCR1A = ((unsigned int) (ADC_higher << 8) | ADC_lower) * scaler;
+
+    // make another conversion
+    ADC_start_conversion();
 }

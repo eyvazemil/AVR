@@ -2,6 +2,7 @@
  * @brief Button is connected to PD5 and LED is connected to PD4.
  */
 
+#include "ADC.h"
 #include "macros.h"
 #include "interrupts.h"
 #include "timers_counters.h"
@@ -28,14 +29,14 @@ int main(void) {
     sei();
 
     // initialize timer for PWM generation
-    timer1_PWM_init(MOTOR_PULSE_MAX);
+    timer1_PWM_init(motor_position);
 
-    // initialize timers for LEDs
-    //timer1_LED_init(0xFF, 0xFF);
+    // initialize ADC conversion for analog joystick to control SERVO motor
+    ADC_init(PC0);
 
     // event loop
     while(1) {
-        
+
     }
 
     return 0;

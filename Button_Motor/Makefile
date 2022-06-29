@@ -11,11 +11,12 @@ CC_OBJCOPY = avr-objcopy
 CFLAGS = -std=gnu99 -DF_CPU=$(F_CPU) -DBAUD=$(BAUD) -mmcu=$(MCU)
 BUILD_DIR = Build
 PROGRAM = button_motor
-OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers_counters.o $(BUILD_DIR)/USART.o
+OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers_counters.o \
+			   $(BUILD_DIR)/USART.o $(BUILD_DIR)/ADC.o
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Removed delay function in a timer overflow interrupt for SERVO motor direction changing."
+GIT_MESSAGE = "Analog joystick(ADC conversion) is used to rotate SERVO motor."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
@@ -28,7 +29,7 @@ create_build_dir:
 $(BUILD_DIR)/main.o: main.c macros.h
 	$(CC) $(CFLAGS) -Os -c main.c -o $@
 
-$(BUILD_DIR)/interrupts.o: interrupts.h interrupts.c macros.h
+$(BUILD_DIR)/interrupts.o: interrupts.h interrupts.c macros.h $(BUILD_DIR)/ADC.o
 	$(CC) $(CFLAGS) -Os -c interrupts.c -o $@
 
 $(BUILD_DIR)/timers_counters.o: timers_counters.h timers_counters.c macros.h
@@ -36,6 +37,9 @@ $(BUILD_DIR)/timers_counters.o: timers_counters.h timers_counters.c macros.h
 
 $(BUILD_DIR)/USART.o: USART.h USART.c macros.h
 	$(CC) $(CFLAGS) -Os -c USART.c -o $@
+
+$(BUILD_DIR)/ADC.o: ADC.h ADC.c macros.h
+	$(CC) $(CFLAGS) -Os -c ADC.c -o $@
 
 flash_check:
 	sudo avrdude -c $(ISP) -p $(MCU) -P $(PORT)

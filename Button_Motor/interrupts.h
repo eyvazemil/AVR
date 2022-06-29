@@ -2,6 +2,7 @@
 #define INTERRUPTS_H
 
 #include "macros.h"
+#include "ADC.h"
 
 #include <stdint.h>
 #include <avr/io.h>

@@ -18,5 +18,10 @@
 #define MOTOR_PULSE_MIN 700 // maximum left position of 20000(16-bit timer)
 #define MOTOR_PULSE_MAX 5200 // maximum right position of 20000(16-bit timer)
 #define MOTOR_PULSE_MID ((MOTOR_PULSE_MAX - MOTOR_PULSE_MIN) / 2 + MOTOR_PULSE_MIN) // in the middle of max and min of 20000(16-bit timer)
+static volatile int motor_position = MOTOR_PULSE_MAX;
+
+// analog joystick
+#define JOYSTICK_MIN 0
+#define JOYSTICK_MAX 1023
 
 #endif // MACROS_H
