@@ -10,13 +10,13 @@ CC = avr-gcc
 CC_OBJCOPY = avr-objcopy
 CFLAGS = -std=gnu99 -DF_CPU=$(F_CPU) -DBAUD=$(BAUD) -mmcu=$(MCU)
 BUILD_DIR = Build
-PROGRAM = button_motor
+PROGRAM = joystick_motor
 OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers_counters.o \
 			   $(BUILD_DIR)/USART.o $(BUILD_DIR)/ADC.o
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Scaling between SERVO motor values and joystick values was fixed."
+GIT_MESSAGE = "Project was renamed."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
