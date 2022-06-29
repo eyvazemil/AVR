@@ -23,5 +23,6 @@ static volatile int motor_position = MOTOR_PULSE_MAX;
 // analog joystick
 #define JOYSTICK_MIN 0
 #define JOYSTICK_MAX 1023
+#define MOTOR_JOYSTICK_SCALER 6 // (MOTOR_PULSE_MAX - MOTOR_PULSE_MIN) / (JOYSTICK_MAX - JOYSTICK_MAX)
 
 #endif // MACROS_H

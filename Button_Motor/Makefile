@@ -16,7 +16,7 @@ OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Analog joystick(ADC conversion) is used to rotate SERVO motor."
+GIT_MESSAGE = "Correct scaler value was determined between SERVO motor values and joystick values."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)

@@ -94,11 +94,8 @@ ISR(ADC_vect) { // ADC conversion done
     uint8_t ADC_lower = ADCL; // lower bits of ADC conversion result
     uint8_t ADC_higher = ADCH; // higher bits of ADC conversion result
 
-    // calculate the scaler between SERVO motor rotations and joystick values
-    uint8_t scaler = (MOTOR_PULSE_MAX - MOTOR_PULSE_MIN) / (JOYSTICK_MAX - JOYSTICK_MIN) + 1;
-
     // set the rotation value of SERVO motor
-    OCR1A = ((unsigned int) (ADC_higher << 8) | ADC_lower) * scaler;
+    OCR1A = ((unsigned int) (ADC_higher << 8) | ADC_lower) * MOTOR_JOYSTICK_SCALER;
 
     // make another conversion
     ADC_start_conversion();
