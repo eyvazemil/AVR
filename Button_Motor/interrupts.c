@@ -95,7 +95,7 @@ ISR(ADC_vect) { // ADC conversion done
     uint8_t ADC_higher = ADCH; // higher bits of ADC conversion result
 
     // set the rotation value of SERVO motor
-    OCR1A = ((unsigned int) (ADC_higher << 8) | ADC_lower) * MOTOR_JOYSTICK_SCALER;
+    OCR1A = ((unsigned int) (ADC_higher << 8) | ADC_lower) * MOTOR_JOYSTICK_SCALER + MOTOR_PULSE_MIN;
 
     // make another conversion
     ADC_start_conversion();

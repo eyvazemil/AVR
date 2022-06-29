@@ -16,7 +16,7 @@ OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Correct scaler value was determined between SERVO motor values and joystick values."
+GIT_MESSAGE = "Scaling between SERVO motor values and joystick values was fixed."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)
