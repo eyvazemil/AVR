@@ -15,8 +15,8 @@
 
 // SERVO motor
 #define MOTOR_PULSES 20000
-#define MOTOR_PULSE_MIN 700 // maximum left position of 20000(16-bit timer)
-#define MOTOR_PULSE_MAX 5200 // maximum right position of 20000(16-bit timer)
+#define MOTOR_PULSE_MIN 1350 // maximum left position of 20000(16-bit timer)
+#define MOTOR_PULSE_MAX 6350 // maximum right position of 20000(16-bit timer)
 #define MOTOR_PULSE_MID ((MOTOR_PULSE_MAX - MOTOR_PULSE_MIN) / 2 + MOTOR_PULSE_MIN) // in the middle of max and min of 20000(16-bit timer)
 static volatile int motor_position = MOTOR_PULSE_MAX;
 
