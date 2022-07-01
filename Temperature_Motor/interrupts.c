@@ -12,44 +12,78 @@ typedef enum motor_states {
     MOTOR_STATE_BLUE_ORANGE
 } MotorStates;
 
-// stores the current state of the DC stepper motor
-static volatile uint8_t motor_state = MOTOR_STATE_ORANGE;
+// array with states
+static volatile uint8_t arr_motor_states[8] = {
+    MOTOR_STATE_ORANGE, 
+    MOTOR_STATE_ORANGE_YELLOW,
+    MOTOR_STATE_YELLOW,
+    MOTOR_STATE_YELLOW_PINK,
+    MOTOR_STATE_PINK,
+    MOTOR_STATE_PINK_BLUE,
+    MOTOR_STATE_BLUE,
+    MOTOR_STATE_BLUE_ORANGE
+};
+
+// array with the ports of motor states
+static volatile uint8_t arr_motor_ports[4] = {
+    MOTOR_PORT_ORANGE,
+    MOTOR_PORT_YELLOW,
+    MOTOR_PORT_PINK,
+    MOTOR_PORT_BLUE
+};
+
+// index of the current state of the DC stepper motor
+static volatile uint8_t motor_state_id = 0;
+
+// direction of the motor
+static volatile uint8_t motor_direction = CLOCKWISE;
 
 // scaler for 16-bit timer
 static volatile uint8_t timer1_scaler = 0;
 
 ISR(TIMER1_COMPA_vect) {
     if(timer1_scaler == TIMER1_SCALER) {
-        if(motor_state == MOTOR_STATE_ORANGE) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_ORANGE);
-            motor_state = MOTOR_STATE_ORANGE_YELLOW;
-        } else if(motor_state == MOTOR_STATE_ORANGE_YELLOW) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_ORANGE) & ~(1 << MOTOR_PORT_YELLOW);
-            motor_state = MOTOR_STATE_YELLOW;
-        } else if(motor_state == MOTOR_STATE_YELLOW) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_YELLOW);
-            motor_state = MOTOR_STATE_YELLOW_PINK;
-        } else if(motor_state == MOTOR_STATE_YELLOW_PINK) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_YELLOW) & ~(1 << MOTOR_PORT_PINK);
-            motor_state = MOTOR_STATE_PINK;
-        } else if(motor_state == MOTOR_STATE_PINK) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_PINK);
-            motor_state = MOTOR_STATE_PINK_BLUE;
-        } else if(motor_state == MOTOR_STATE_PINK_BLUE) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_PINK) & ~(1 << MOTOR_PORT_BLUE);
-            motor_state = MOTOR_STATE_BLUE;
-        } else if(motor_state == MOTOR_STATE_BLUE) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_BLUE);
-            motor_state = MOTOR_STATE_BLUE_ORANGE;
-        } else if(motor_state == MOTOR_STATE_BLUE_ORANGE) {
-            MOTOR_PORT = 0xFF & ~(1 << MOTOR_PORT_BLUE) & ~(1 << MOTOR_PORT_ORANGE);
-            motor_state = MOTOR_STATE_ORANGE;
+        MOTOR_PORT = 0xFF & ~(1 << arr_motor_ports[motor_state_id / 2]);
+
+        // for a given even state, write the next state to the port too
+        if(motor_state_id % 2) {
+            if(motor_state_id == MOTOR_NUM_STATES - 1)
+                MOTOR_PORT &= ~(1 << arr_motor_ports[0]); // if it is BLUE add ORANGE
+            else
+                MOTOR_PORT &= ~(1 << arr_motor_ports[motor_state_id / 2 + 1]);
+        }
+
+        if(motor_direction == COUNTERCLOCKWISE) {
+            if(motor_state_id == MOTOR_NUM_STATES - 1)
+                motor_state_id = 0;
+            else
+                ++motor_state_id;
+        } else {
+            if(motor_state_id == 0)
+                motor_state_id = MOTOR_NUM_STATES - 1;
+            else
+                --motor_state_id;
         }
 
         // reset the scaler
         timer1_scaler = 0;
     } else
         ++timer1_scaler;
+}
+
+ISR(PCINT0_vect) {
+    if(!(BUTTON_PIN & (1 << BUTTON))) { // grounded => pressed
+        _delay_us(DEBOUNCE_DELAY); // debounce
+
+        if(!(BUTTON_PIN & (1 << BUTTON))) { // still pressed => it was a real press
+            if(motor_direction == CLOCKWISE)
+                motor_direction = COUNTERCLOCKWISE;
+            else
+                motor_direction = CLOCKWISE;
+        }
+    }
+
+    LED_PORT ^= (1 << LED);
 }
 
 void interrupts_init(InterruptType interrupt_type, uint8_t pin) {
