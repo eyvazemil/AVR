@@ -15,7 +15,7 @@ OBJECT_FILES = $(BUILD_DIR)/main.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/timers
 
 # GIT
 GIT_BRANCH = master
-GIT_MESSAGE = "Added clockwise and counterclockwise rotation for a DC stepper motor with a button to control direction of rotation."
+GIT_MESSAGE = "The timer interrupt code was optimised to get rid of division and modulus operations."
 
 # targets
 all: create_build_dir $(OBJECT_FILES)

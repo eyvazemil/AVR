@@ -1,35 +1,15 @@
 #include "interrupts.h"
 
-// states of the DC stepper motor
-typedef enum motor_states {
-    MOTOR_STATE_ORANGE,
-    MOTOR_STATE_ORANGE_YELLOW,
-    MOTOR_STATE_YELLOW,
-    MOTOR_STATE_YELLOW_PINK,
-    MOTOR_STATE_PINK,
-    MOTOR_STATE_PINK_BLUE,
-    MOTOR_STATE_BLUE,
-    MOTOR_STATE_BLUE_ORANGE
-} MotorStates;
-
-// array with states
-static volatile uint8_t arr_motor_states[8] = {
-    MOTOR_STATE_ORANGE, 
-    MOTOR_STATE_ORANGE_YELLOW,
-    MOTOR_STATE_YELLOW,
-    MOTOR_STATE_YELLOW_PINK,
-    MOTOR_STATE_PINK,
-    MOTOR_STATE_PINK_BLUE,
-    MOTOR_STATE_BLUE,
-    MOTOR_STATE_BLUE_ORANGE
-};
-
 // array with the ports of motor states
-static volatile uint8_t arr_motor_ports[4] = {
-    MOTOR_PORT_ORANGE,
-    MOTOR_PORT_YELLOW,
-    MOTOR_PORT_PINK,
-    MOTOR_PORT_BLUE
+static volatile uint8_t arr_motor_states_ports[8] = {
+    0xFF & ~(1 << MOTOR_PORT_ORANGE),
+    0xFF & ~(1 << MOTOR_PORT_ORANGE) & ~(1 << MOTOR_PORT_YELLOW),
+    0xFF & ~(1 << MOTOR_PORT_YELLOW),
+    0xFF & ~(1 << MOTOR_PORT_YELLOW) & ~(1 << MOTOR_PORT_PINK),
+    0xFF & ~(1 << MOTOR_PORT_PINK),
+    0xFF & ~(1 << MOTOR_PORT_PINK) & ~(1 << MOTOR_PORT_BLUE),
+    0xFF & ~(1 << MOTOR_PORT_BLUE),
+    0xFF & ~(1 << MOTOR_PORT_BLUE) & ~(1 << MOTOR_PORT_ORANGE)
 };
 
 // index of the current state of the DC stepper motor
@@ -43,27 +23,15 @@ static volatile uint8_t timer1_scaler = 0;
 
 ISR(TIMER1_COMPA_vect) {
     if(timer1_scaler == TIMER1_SCALER) {
-        MOTOR_PORT = 0xFF & ~(1 << arr_motor_ports[motor_state_id / 2]);
+        MOTOR_PORT = arr_motor_states_ports[motor_state_id];
 
-        // for a given even state, write the next state to the port too
-        if(motor_state_id % 2) {
-            if(motor_state_id == MOTOR_NUM_STATES - 1)
-                MOTOR_PORT &= ~(1 << arr_motor_ports[0]); // if it is BLUE add ORANGE
-            else
-                MOTOR_PORT &= ~(1 << arr_motor_ports[motor_state_id / 2 + 1]);
-        }
+        if(motor_direction == COUNTERCLOCKWISE)
+            ++motor_state_id;
+        else
+            --motor_state_id;
 
-        if(motor_direction == COUNTERCLOCKWISE) {
-            if(motor_state_id == MOTOR_NUM_STATES - 1)
-                motor_state_id = 0;
-            else
-                ++motor_state_id;
-        } else {
-            if(motor_state_id == 0)
-                motor_state_id = MOTOR_NUM_STATES - 1;
-            else
-                --motor_state_id;
-        }
+        // stay in the range of 8 states
+        motor_state_id &= 0b00000111;
 
         // reset the scaler
         timer1_scaler = 0;
@@ -75,12 +43,8 @@ ISR(PCINT0_vect) {
     if(!(BUTTON_PIN & (1 << BUTTON))) { // grounded => pressed
         _delay_us(DEBOUNCE_DELAY); // debounce
 
-        if(!(BUTTON_PIN & (1 << BUTTON))) { // still pressed => it was a real press
-            if(motor_direction == CLOCKWISE)
-                motor_direction = COUNTERCLOCKWISE;
-            else
-                motor_direction = CLOCKWISE;
-        }
+        if(!(BUTTON_PIN & (1 << BUTTON))) // still pressed => it was a real press
+            motor_direction ^= 0b00000001;
     }
 
     LED_PORT ^= (1 << LED);
